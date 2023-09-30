@@ -56,7 +56,11 @@ def separarGananciaPositivaNegativa(data):
 
 # Graficamos histograma de ganancia porcentual semanal
 
-def plot_histograma_rangoDeGananciaSemana(rangoDeGananaciaSemanal, mean, std, fig_name="ganancia_porcentual_semanal.png"):
+def plot_histograma_rangoDeGanancia(rangoDeGananaciaSemanal, 
+    mean, std, fig_name="ganancia_porcentual_semanal.png", 
+    title="Histograma de ganancia porcentual semanal",
+    xLabel="Ganancia porcentual semanal",
+    nBins=500):
     fig,ax = plt.subplots(figsize=(10, 5))
 
     datosGananciaPositiva, datosGananciaNegativa = separarGananciaPositivaNegativa(rangoDeGananaciaSemanal)
@@ -66,9 +70,9 @@ def plot_histograma_rangoDeGananciaSemana(rangoDeGananaciaSemanal, mean, std, fi
 
     ax.grid(True)
     #ax.hist([datosGananciaPositiva, datosGananciaNegativa], bins=150, color=['tab:blue', 'tab:red'], label=['Ganancia positiva', 'Ganancia negativa'], density=True)
-    N, bins,patches = ax.hist(rangoDeGananaciaSemanal[:,2], bins=500, color='tab:blue', density=True)
-    ax.set_title('Histograma de ganancia porcentual semanal')
-    ax.set_xlabel('Ganancia porcentual semanal')
+    N, bins,patches = ax.hist(rangoDeGananaciaSemanal[:,2], bins=nBins, color='tab:blue', density=True)
+    ax.set_title(title)
+    ax.set_xlabel(xLabel)
     ax.set_ylabel('Frecuencia')
 
 
@@ -92,7 +96,7 @@ def plot_histograma_rangoDeGananciaSemana(rangoDeGananaciaSemanal, mean, std, fi
     addLabelToPositive = True
     addLabelToNegative = True
     for i in range(len(patches)):
-        if patches[i].get_x() < 0:
+        if patches[i].get_x() < 0:#add legend to only one patch
             if addLabelToNegative:
                 ax.plot([],[], color='tab:blue', label='Ganancia negativa')
                 addLabelToNegative = False
@@ -101,7 +105,7 @@ def plot_histograma_rangoDeGananciaSemana(rangoDeGananaciaSemanal, mean, std, fi
             patches[i].set_edgecolor('tab:blue')
             patches[i].set_alpha(0.5)
         else:
-            if addLabelToPositive:
+            if addLabelToPositive:#add legend to only one patch
                 ax.plot([],[], color='tab:red', label='Ganancia positiva')
                 addLabelToPositive = False
             patches[i].set_facecolor('tab:red')
@@ -121,7 +125,7 @@ def plot_histograma_rangoDeGananciaSemana(rangoDeGananaciaSemanal, mean, std, fi
 
 gananciaPorcentualSemanal = calculate_weekly_percentage_gain(load_data())
 mean, std = meanAndStd(gananciaPorcentualSemanal)
-plot_histograma_rangoDeGananciaSemana(gananciaPorcentualSemanal, mean, std)
+plot_histograma_rangoDeGanancia(gananciaPorcentualSemanal, mean, std)
 
     
 
