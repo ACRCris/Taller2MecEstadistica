@@ -48,9 +48,10 @@ def plot_data(data, fig_name="indice_precios.png"):
 
     plt.show()
 
-
-
     fig.savefig(f'../data/literalA/{fig_name}.png')
+
+
+
 
 dataIndices = load_data()
 plot_data(dataIndices)

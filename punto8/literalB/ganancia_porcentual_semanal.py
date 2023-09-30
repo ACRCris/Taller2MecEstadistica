@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # Cargamos los datos
 def load_data():
-    data = pd.read_excel("../data/SandPConstantDollars.xlsx")
+    data = pd.read_excel("../data/SandPConstantDollars.xlsx", header=None)
     ## introducir nombre de columna
     data.columns = ['dia', 'index']
     return data
@@ -13,40 +13,72 @@ def load_data():
 # Calculamos la ganancia porcentual semanal
 def calculate_weekly_percentage_gain(data):
     nparray = data.to_numpy()
-    
-    # proceso anterio en una linea
+
     sp = nparray[0:,1]
-    #Calcula la ganancia porcentual semanal para los primeros 3 dias
-    sp = sp[:2]
-    sp5 = sp[2:5]
+    days = nparray[0:,0]
+    
+              
+    #borrar los elementos de days tales que days + 5 no esta en days
+    daysD = np.delete(days, np.where(np.isin(days + 5, days) == False))
+    #borrar los elementos de sp tales que days + 5 no esta en days
+    spD = np.delete(sp, np.where(np.isin(days + 5, days) == False))
+    #borrar los elementos de days tales que days - 5 no esta en days
+    days5I = np.delete(days, np.where(np.isin(days - 5, days) == False))
+    #borrar los elementos de sp tales que days - 5 no esta en days
+    sp5I = np.delete(sp, np.where(np.isin(days - 5, days) == False))
 
-    #primeros3dias = 100 * (sp5 - sp) / sp 
+    #calcular la ganancia porcentual semanal
+    ganancia = 100*(sp5I - spD[0:len(sp5I)]) / spD[0:len(sp5I)] 
+    rangoDeGananaciaSemanal = np.array([daysD[:len(days5I)], days5I,ganancia]).T
 
-    #Calcula la ganancia porcentual semanal para el resto de dias
-    y = nparray[0:,1]
-    x = nparray[0:,0]
-    sp = y[2:]
-    t = x[2:]
-    ## remover por indice
-    indices = np.linspace(0, len(sp)-1, len(sp), dtype=int)
+    for i in rangoDeGananaciaSemanal:
+        print(f"dia: {i[0]}, dia+5: {i[1]}, ganancia: {i[2]}")
 
-    #borra los datos que no tiene imagen
-    mask =  (indices %5 != 0) 
-    mask2 =  (indices %4 != 0)
-    sp = sp[mask][mask2[:len(sp[mask])]]
-    t = t[mask][mask2[:len(t[mask])]]
+    print(f"Min: {np.min(ganancia)}")
+    print(f"Max: {np.max(ganancia)}")
 
-    # calcula sp5 eliminado los que no tienen pre-imagen
-    sp = y[5:]
-    t5 = x[5:]
-    #for i in t:
-    #    print(i) 
-    sp5 = sp[mask[:-3]][mask2[:len(sp[mask[:-3]])]]
-    t5 = t5[mask[:-3]][mask2[:len(t5[mask[:-3]])]]
+    return rangoDeGananaciaSemanal
 
-    for i in range(len(t)-1):
-        print("t",t[i],"sp", sp[i], "t+5",t5[i], "sp+5", sp5[i])
-        
+# Mean and std of weekly percentage gain
+def meanAndStd(data):
+    y = data[:,2]
+    return np.mean(y), np.std(y)
+
+
+# Graficamos histograma de ganancia porcentual semanal
+
+def plot_histograma_rangoDeGananciaSemana(rangoDeGananaciaSemanal, mean, std, fig_name="ganancia_porcentual_semanal.png"):
+    fig,ax = plt.subplots(figsize=(10, 5))
+
+    ## Plot norm 
+
+    ax.grid(True)
+    ax.hist(rangoDeGananaciaSemanal[:,2], bins=300, color='tab:blue', density=True)
+    ax.set_title('Histograma de ganancia porcentual semanal')
+    ax.set_xlabel('Ganancia porcentual semanal')
+    ax.set_ylabel('Frecuencia')
+
+    ## Plot gaussian distribution with mean and std
+    x = np.linspace(mean - 3*std, mean + 3*std, 100)
+    ax.plot(x, stats.norm.pdf(x, mean, std), color='tab:red')
+
+
+
+    plt.show()
+    fig.savefig(f'../data/literalB/{fig_name}.png')
+
+
+
+
+
+
+
+gananciaPorcentualSemanal = calculate_weekly_percentage_gain(load_data())
+mean, std = meanAndStd(gananciaPorcentualSemanal)
+plot_histograma_rangoDeGananciaSemana(gananciaPorcentualSemanal, mean, std)
+
+    
+
 
 data = load_data()
 calculate_weekly_percentage_gain(data)
