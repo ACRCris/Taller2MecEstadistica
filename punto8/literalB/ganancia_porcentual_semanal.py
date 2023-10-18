@@ -19,16 +19,16 @@ def calculate_weekly_percentage_gain(data):
     
               
     #borrar los elementos de days tales que days + 5 no esta en days
-    daysD = np.delete(days, np.where(np.isin(days + 5, days) == False))
+    daysD = days[:-5]
     #borrar los elementos de sp tales que days + 5 no esta en days
-    spD = np.delete(sp, np.where(np.isin(days + 5, days) == False))
+    spD = sp[:-5]
     #borrar los elementos de days tales que days - 5 no esta en days
-    days5I = np.delete(days, np.where(np.isin(days - 5, days) == False))
+    days5I = days[5:]
     #borrar los elementos de sp tales que days - 5 no esta en days
-    sp5I = np.delete(sp, np.where(np.isin(days - 5, days) == False))
+    sp5I = sp[5:]
 
     #calcular la ganancia porcentual semanal
-    ganancia = 100*(sp5I - spD[0:len(sp5I)]) / spD[0:len(sp5I)] 
+    ganancia = 100*(sp5I - spD) / spD 
     rangoDeGananaciaSemanal = np.array([daysD[:len(days5I)], days5I,ganancia]).T
 
     print(len(rangoDeGananaciaSemanal))
@@ -57,7 +57,8 @@ def separarGananciaPositivaNegativa(data):
 # Graficamos histograma de ganancia porcentual semanal
 
 def plot_histograma_rangoDeGanancia(rangoDeGananaciaSemanal, 
-    mean, std, fig_name="ganancia_porcentual_semanal.png", 
+    mean, std, fig_name="ganancia_porcentual_semanal.png",
+    directory="../data/literalB/", 
     title="Histograma de ganancia porcentual semanal",
     xLabel="Ganancia porcentual semanal",
     nBins=500):
@@ -78,18 +79,18 @@ def plot_histograma_rangoDeGanancia(rangoDeGananaciaSemanal,
 
     #set percent of week with positive gain
     percent = len(datosGananciaPositiva) / len(rangoDeGananaciaSemanal)
-    ax.text(0.05, 0.1, f"Porcentaje +: %1.2f" % percent + "%", transform=ax.transAxes, fontsize=10,
+    ax.text(0.05, 0.1, f"Porcentaje {percent:.2f}" , transform=ax.transAxes, fontsize=10,
         verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
 
-    ## Plot gaussian distribution with mean and std
+    ## Plot gaussian distribution with mean and std, wit latex label
     x = np.linspace(mean - 3*std, mean + 3*std, 100)
-    ax.plot(x, stats.norm.pdf(x, mean, std), color='tab:orange', label='Distribucion normal')
+    ax.plot(x, stats.norm.pdf(x, mean, std), color='tab:orange', label=r'Distribucion normal($\mu$={mean:.2f}, $\sigma$={std:.2f})'.format(mean=mean, std=std));
 
     ## Plot mean and std from hist
 
     meanHist, stdHist = meanAndStdFromHist(N, bins)
     x = np.linspace(meanHist - 3*stdHist, meanHist + 3*stdHist, 100)
-    ax.plot(x, stats.norm.pdf(x, meanHist, stdHist), color='tab:purple', label='Distribucion normal (hist)')
+    #ax.plot(x, stats.norm.pdf(x, meanHist, stdHist), color='tab:purple', label=r'Distribucion normal($\mu$={mean:.2f}, $\sigma$={std:.2f})'.format(mean=meanHist, std=stdHist));
 
 
     ## paint patches with color depending on the sign of the gain with legend
@@ -115,19 +116,25 @@ def plot_histograma_rangoDeGanancia(rangoDeGananaciaSemanal,
     ax.legend(loc='upper left')
 
     plt.show()
-    fig.savefig(f'../data/literalB/{fig_name}.png')
+    fig.savefig(f'{directory}{fig_name}.pdf')
 
 
 
-
-
+def filterPercentGainByRange(data, percent):
+    for d in data:
+        print(d)
+    dataAux = data[data[:,2] < percent]
+    dataAux = dataAux[dataAux[:,2] > -percent]
+    return dataAux
 
 
 gananciaPorcentualSemanal = calculate_weekly_percentage_gain(load_data())
 mean, std = meanAndStd(gananciaPorcentualSemanal)
+
+print(mean,std)
 plot_histograma_rangoDeGanancia(gananciaPorcentualSemanal, mean, std)
 
-    
+
 
 
 data = load_data()

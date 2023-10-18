@@ -22,8 +22,9 @@ def calculate_annual_percentage_gain(data):
     
               
     #calcular la ganancia porcentual semanal
-    ganancia = 100*(sp[:-252] - sp[252:]) / sp[252:]
-    rangoDeGananaciaAnual = np.array([sp[:-252], sp[252:],ganancia]).T
+    ganancia = 100*(sp[252:] - sp[:-252]) / sp[252:]
+    rangoDeGananaciaAnual = np.array([sp[252:], sp[:-252],ganancia]).T
+
 
     return rangoDeGananaciaAnual
 

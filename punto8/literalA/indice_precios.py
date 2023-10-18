@@ -11,7 +11,7 @@ def load_data():
 
 # Graficamos los datos
 def plot_data(data, fig_name="indice_precios.png"):
-    fig,ax = plt.subplots(figsize=(10, 5))
+    fig,ax = plt.subplots(figsize=(10, 7))
 
     ## Grafico basico
     nparray = data.to_numpy()
@@ -48,14 +48,14 @@ def plot_data(data, fig_name="indice_precios.png"):
 
     plt.show()
 
-    fig.savefig(f'../data/literalA/{fig_name}.png')
+    fig.savefig(f'../data/literalA/{fig_name}')
 
 
 
 
 dataIndices = load_data()
-plot_data(dataIndices)
+plot_data(dataIndices, "indice_precios.pdf")
 
 ## Grafica entre 6800 y 7000
 dataIndices = dataIndices[(dataIndices['year'] >= 6800) & (dataIndices['year'] <= 7000)]
-plot_data(dataIndices, "indice_precios_6800_7000.png")
+plot_data(dataIndices, "indice_precios_6800_7000.pdf")
